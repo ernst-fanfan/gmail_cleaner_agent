@@ -93,3 +93,4 @@ def append_audit_records(db_path: str, decisions: Iterable[Decision]) -> None:
         conn.commit()
     finally:
         conn.close()
+
