@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   cleanmail:
     build:
@@ -43,3 +41,18 @@ services:
       - ./data:/app/data:rw
       - ./reports:/app/reports:rw
     command: ["sleep", "infinity"]
+
+  tests:
+    image: cleanmail:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanmail-tests
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ./src:/app/src:rw
+      - ./tests:/app/tests:rw
+      - ./prompts:/app/prompts:rw
+    command: ["pytest", "-q"]
+    restart: "no"

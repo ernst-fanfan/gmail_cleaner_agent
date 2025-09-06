@@ -27,9 +27,16 @@ Common commands:
 - Build images: `docker compose build`
 - Start scheduler service: `docker compose up cleanmail`
 - One-off dry run: `docker compose run --rm cleanmail python -m cleanmail.main run --dry-run`
+- Run tests (Compose): `docker compose up --build tests` (or `docker compose run --rm tests`)
 - Dev shell (for pytest/CLI):
   - Start: `docker compose up -d dev`
   - Exec: `docker compose exec dev bash`
+
+Testing:
+- With Compose: `docker compose up --build tests`
+  - With coverage: `docker compose run --rm tests pytest --cov=src/cleanmail --cov-report=term-missing`
+- In dev container: `pytest -q`
+- Locally (venv): `pip install -e .[dev] && pytest -q`
 
 Mounted volumes (for both services):
 - `./src -> /app/src` (live code edits)
