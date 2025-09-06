@@ -78,7 +78,7 @@
 # config.yaml
 schedule:
   time: "22:00"
-  timezone: "Europe/Berlin"  # set your TZ
+  timezone: "America/New_York"  # set your TZ
 
 mode:
   dry_run: true               # start safe; switch to false after validation
@@ -429,4 +429,3 @@ FROM python:3.11-slim AS base
 ```
 This plan is intentionally conservative to protect important emails. We can tune aggressiveness as confidence grows.
 ```
-

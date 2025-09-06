@@ -1,0 +1,17 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+*.pyo
+*.DS_Store
+data/
+reports/
+token.json
+credentials.json
+config.yaml
+.env
+.env.*
+.secrets*
+*.pem
+*.key
+*.crt

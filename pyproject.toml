@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cleanmail"
+version = "0.1.0"
+description = "Daily Gmail triage with safety rails and LLM assist"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+  "PyYAML>=6.0",
+  "pydantic>=2.6",
+  "APScheduler>=3.10",
+  "google-api-python-client>=2.133.0",
+  "google-auth>=2.27.0",
+  "google-auth-oauthlib>=1.2.0",
+  "openai>=1.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+  "pytest-mock>=3.12",
+  "freezegun>=1.5",
+]
+
+[project.urls]
+Homepage = "https://example.local/cleanmail"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/cleanmail"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+markers = [
+  "unit: unit tests",
+  "integration: integration tests",
+  "system: live/system tests",
+  "slow: slow tests",
+  "online: require network",
+  "docker: docker-involved tests",
+]

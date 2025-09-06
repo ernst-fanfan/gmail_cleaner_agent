@@ -1,0 +1,43 @@
+# Copy to config.yaml and adjust values
+
+schedule:
+  time: "22:00"
+  timezone: "America/New_York"
+
+mode:
+  dry_run: true
+  action: "trash"           # one of: label, archive, trash
+  quarantine_label: "ToReview"
+  preserve_days: 7
+
+limits:
+  max_messages_per_run: 500
+  fetch_window_hours: 24
+
+llm:
+  provider: "openai"
+  model: "gpt-4o-mini"
+  temperature: 0.0
+  max_body_chars: 2000
+  system_prompt_path: "prompts/classifier_system.md"
+
+safety:
+  whitelist_senders:
+    - "boss@company.com"
+    - "alerts@bank.com"
+  whitelist_domains:
+    - "company.com"
+  never_touch_labels:
+    - "STARRED"
+    - "IMPORTANT"
+  denylist_senders:
+    - "noreply@annoying.com"
+
+report:
+  recipient: "you@example.com"
+  save_dir: "reports"
+
+secrets:
+  openai_api_key_env: "OPENAI_API_KEY"
+  google_credentials_dir: "data/google"
+  sqlite_path: "data/cleanmail.db"
