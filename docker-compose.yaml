@@ -1,0 +1,58 @@
+services:
+  cleanmail:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cleanmail:dev
+    container_name: cleanmail
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    # Mount only what we need for safety and live editing
+    volumes:
+      - ./src:/app/src:rw
+      - ./prompts:/app/prompts:rw
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data:rw
+      - ./reports:/app/reports:rw
+    command: ["python", "-m", "cleanmail.main", "serve"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-m", "cleanmail.main", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Development shell container (attach and run ad-hoc commands)
+  dev:
+    image: cleanmail:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanmail-dev
+    environment:
+      - TZ=${TZ:-America/New_York}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./src:/app/src:rw
+      - ./prompts:/app/prompts:rw
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data:rw
+      - ./reports:/app/reports:rw
+    command: ["sleep", "infinity"]
+
+  tests:
+    image: cleanmail:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cleanmail-tests
+    environment:
+      - TZ=${TZ:-America/New_York}
+    volumes:
+      - ./src:/app/src:rw
+      - ./tests:/app/tests:rw
+      - ./prompts:/app/prompts:rw
+    command: ["pytest", "-q"]
+    restart: "no"
