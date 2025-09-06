@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import logging
 from datetime import datetime, time as dtime
+from typing import Callable, Dict, Any
 
 from .config import load_config
 from .logging_setup import setup_logging
@@ -14,8 +15,8 @@ from .scheduler import start_scheduler, run_once
 log = logging.getLogger(__name__)
 
 
-def _runner_factory(cfg: dict):
-    def _runner(now: datetime):
+def _runner_factory(cfg: Dict[str, Any]) -> Callable[[datetime], None]:
+    def _runner(now: datetime) -> None:
         report = process_inbox(now, cfg)
         md = build_markdown_report(report, cfg)
         # Save report
@@ -63,4 +64,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

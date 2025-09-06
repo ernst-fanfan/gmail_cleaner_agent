@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple, Optional, Dict
 
 import yaml
 
@@ -13,14 +13,14 @@ DEFAULT_CONFIG_PATHS = (
 )
 
 
-def _first_existing(paths: tuple[Path, ...]) -> Path | None:
+def _first_existing(paths: Tuple[Path, ...]) -> Optional[Path]:
     for p in paths:
         if p.exists():
             return p
     return None
 
 
-def load_config(path: str | None = None) -> dict[str, Any]:
+def load_config(path: Optional[str] = None) -> Dict[str, Any]:
     """Load and validate application configuration.
 
     - Reads YAML from `path` or default `config.yaml` if None.
@@ -30,7 +30,7 @@ def load_config(path: str | None = None) -> dict[str, Any]:
     Returns a nested dict suitable for injection into components.
     """
 
-    cfg_path: Path | None
+    cfg_path: Optional[Path]
     if path:
         cfg_path = Path(path)
     else:
@@ -71,4 +71,3 @@ def load_config(path: str | None = None) -> dict[str, Any]:
     cfg["llm"]["system_prompt_path"] = _expand(cfg["llm"]["system_prompt_path"])
 
     return cfg
-

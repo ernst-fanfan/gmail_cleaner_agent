@@ -22,9 +22,9 @@ def authenticate(credentials_dir: str) -> None:
 
 
 def list_messages(
-    after: str | None = None,
+    after: Optional[str] = None,
     max_results: int = 500,
-    query: str | None = None,
+    query: Optional[str] = None,
 ) -> Iterable[str]:
     """List message IDs matching the search.
 
@@ -49,8 +49,8 @@ def get_message(message_id: str, include_body: bool = True) -> MessageSummary:
 
 def modify_labels(
     message_id: str,
-    add: List[str] | None = None,
-    remove: List[str] | None = None,
+    add: Optional[List[str]] = None,
+    remove: Optional[List[str]] = None,
 ) -> None:
     """Add and/or remove labels for a message.
 
@@ -81,4 +81,3 @@ def send_email(to: str, subject: str, markdown_body: str) -> None:
     """
     # TODO: Implement
     return None
-

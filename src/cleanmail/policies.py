@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 
 from .models import MessageSummary, Decision, Action
 
@@ -25,7 +25,7 @@ def is_protected(msg: MessageSummary, never_touch_labels: List[str]) -> bool:
     return bool(protected & labels_upper)
 
 
-def fast_heuristics(msg: MessageSummary) -> tuple[Action | None, str | None]:
+def fast_heuristics(msg: MessageSummary) -> Tuple[Optional[Action], Optional[str]]:
     """Apply quick non-LLM rules.
 
     Detect newsletters via List-Unsubscribe and common patterns.
@@ -40,7 +40,7 @@ def fast_heuristics(msg: MessageSummary) -> tuple[Action | None, str | None]:
     return None, None
 
 
-def policy_decide(msg: MessageSummary, config: dict) -> Decision | None:
+def policy_decide(msg: MessageSummary, config: Dict[str, Any]) -> Optional[Decision]:
     """Return a `Decision` if a policy can confidently decide; otherwise None.
 
     Enforces safety: whitelists, protected labels.
@@ -63,4 +63,3 @@ def policy_decide(msg: MessageSummary, config: dict) -> Decision | None:
             return Decision(msg, Action.ARCHIVE, [], f"{reason} (conservative)", by="policy")
         return Decision(msg, action, [], reason or "heuristic", by="policy")
     return None
-

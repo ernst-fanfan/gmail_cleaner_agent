@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
+from typing import List, Dict, Any
 
 from .models import RunReport
 
 
-def build_markdown_report(report: RunReport, config: dict) -> str:
+def build_markdown_report(report: RunReport, config: Dict[str, Any]) -> str:
     """Render a human-friendly Markdown report from a `RunReport`."""
     lines: List[str] = []
     lines.append(f"# Gmail Smart Cleaner Report – {report.finished_at:%Y-%m-%d}")
@@ -56,11 +56,10 @@ def save_report(markdown: str, path: str) -> str:
     return str(p)
 
 
-def email_report(markdown: str, recipient: str, gmail_sender_config: dict) -> None:
+def email_report(markdown: str, recipient: str, gmail_sender_config: Dict[str, Any]) -> None:
     """Send the Markdown report via Gmail to the recipient.
 
     Scaffold: call gmail_client.send_email later; no-op for now.
     """
     # Deferred to gmail_client implementation
     return None
-

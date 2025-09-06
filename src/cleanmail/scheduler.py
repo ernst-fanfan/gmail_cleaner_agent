@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, time
+from typing import Callable
 from zoneinfo import ZoneInfo
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -10,7 +11,7 @@ from apscheduler.triggers.cron import CronTrigger
 log = logging.getLogger(__name__)
 
 
-def start_scheduler(daily_time: time, timezone: str, runner) -> None:
+def start_scheduler(daily_time: time, timezone: str, runner: Callable[[datetime], None]) -> None:
     """Start the APScheduler that invokes `runner` at the configured time."""
     tz = ZoneInfo(timezone)
     scheduler = BackgroundScheduler(timezone=tz)
@@ -29,8 +30,7 @@ def start_scheduler(daily_time: time, timezone: str, runner) -> None:
         scheduler.shutdown()
 
 
-def run_once(runner, timezone: str) -> None:
+def run_once(runner: Callable[[datetime], None], timezone: str) -> None:
     """Convenience entry for a single immediate processing run (no schedule)."""
     tz = ZoneInfo(timezone)
     runner(datetime.now(tz))
-

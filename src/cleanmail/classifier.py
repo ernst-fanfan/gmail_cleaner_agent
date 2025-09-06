@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Tuple, Dict, Any
 
 from .models import MessageSummary, Classification, Action
 
 
-def classify_with_llm(msg: MessageSummary, config: dict) -> Classification:
+def classify_with_llm(msg: MessageSummary, config: Dict[str, Any]) -> Classification:
     """Call the configured LLM to classify the message.
 
     Scaffold: returns a conservative default classification until implemented.
@@ -20,8 +20,8 @@ def classify_with_llm(msg: MessageSummary, config: dict) -> Classification:
 
 
 def decide_from_classification(
-    msg: MessageSummary, cls: Classification, config: dict
-) -> tuple[Action, str]:
+    msg: MessageSummary, cls: Classification, config: Dict[str, Any]
+) -> Tuple[Action, str]:
     """Convert an LLM classification into a concrete action and reason.
 
     Applies confidence thresholds and caps TRASH unless highly confident.
@@ -31,4 +31,3 @@ def decide_from_classification(
     if action == Action.TRASH and cls.confidence < min_trash:
         return Action.ARCHIVE, "low confidence; archived instead"
     return action, cls.rationale or cls.category
-

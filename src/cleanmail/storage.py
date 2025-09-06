@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 import sqlite3
-from typing import Iterable
+from typing import Iterable, Optional
 
 from .models import Decision
 
@@ -39,7 +39,7 @@ def _ensure_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def get_last_run(db_path: str) -> datetime | None:
+def get_last_run(db_path: str) -> Optional[datetime]:
     """Return the timestamp of the last successful run, if available."""
     conn = _connect(db_path)
     try:
@@ -93,4 +93,3 @@ def append_audit_records(db_path: str, decisions: Iterable[Decision]) -> None:
         conn.commit()
     finally:
         conn.close()
-
