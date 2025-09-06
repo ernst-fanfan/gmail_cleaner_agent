@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from .models import RunReport, Decision, Action, MessageSummary
@@ -19,7 +19,7 @@ def process_inbox(now: datetime, config: dict) -> RunReport:
     examples = defaultdict(list)
     errors: List[str] = []
 
-    finished = datetime.utcnow()
+    finished = datetime.now(timezone.utc)
     return RunReport(
         started_at=started,
         finished_at=finished,
@@ -44,4 +44,3 @@ def execute_decision(decision: Decision, config: dict) -> None:
     Scaffold: no-op.
     """
     return None
-

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 import sqlite3
 from typing import Iterable
 
@@ -75,7 +75,7 @@ def append_audit_records(db_path: str, decisions: Iterable[Decision]) -> None:
         _ensure_schema(conn)
         rows = [
             (
-                datetime.utcnow().isoformat(timespec="seconds"),
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 d.message.id,
                 d.action.value,
                 d.by,
@@ -93,4 +93,3 @@ def append_audit_records(db_path: str, decisions: Iterable[Decision]) -> None:
         conn.commit()
     finally:
         conn.close()
-
