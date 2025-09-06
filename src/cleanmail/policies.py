@@ -9,12 +9,18 @@ def is_whitelisted(
     msg: MessageSummary, whitelist_senders: List[str], whitelist_domains: List[str]
 ) -> bool:
     """Return True if the message sender/domain is explicitly whitelisted."""
-    sender = (msg.from_addr or "").lower()
-    if sender in {s.lower() for s in whitelist_senders}:
+    sender = (msg.from_addr or "").strip().lower()
+    if sender in {s.strip().lower() for s in whitelist_senders}:
         return True
-    for dom in whitelist_domains:
-        if sender.endswith("@" + dom.lower()) or sender.endswith("." + dom.lower()):
-            return True
+    # Extract domain from email address and compare allowing subdomains.
+    if "@" in sender:
+        domain = sender.split("@", 1)[1]
+        for dom in whitelist_domains:
+            d = (dom or "").strip().lower()
+            if not d:
+                continue
+            if domain == d or domain.endswith("." + d):
+                return True
     return False
 
 
@@ -28,12 +34,14 @@ def is_protected(msg: MessageSummary, never_touch_labels: List[str]) -> bool:
 def fast_heuristics(msg: MessageSummary) -> Tuple[Optional[Action], Optional[str]]:
     """Apply quick non-LLM rules.
 
-    Detect newsletters via List-Unsubscribe and common patterns.
+    Detect newsletters via unsubscribe hints and common patterns.
     Detect obvious spam by naive subject keywords.
     """
     subj = (msg.subject or "").lower()
-    if "list-unsubscribe" in msg.snippet.lower():
-        return Action.ARCHIVE, "newsletter header"
+    # Heuristic: look for unsubscribe tokens in body preview/snippet.
+    body_hint_source = (msg.body_preview or msg.snippet or "").lower()
+    if ("list-unsubscribe" in body_hint_source) or ("unsubscribe" in body_hint_source):
+        return Action.ARCHIVE, "unsubscribe hint"
     spammy = ["win money", "free!!!", "urgent action required", "loan approved"]
     if any(k in subj for k in spammy):
         return Action.TRASH, "spammy subject"
