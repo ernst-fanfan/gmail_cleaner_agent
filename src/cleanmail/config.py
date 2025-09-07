@@ -127,9 +127,12 @@ def load_config(path: Optional[str] = None) -> Dict[str, Any]:
 
     # Helper to DRY path expansion
     def _expand_field(section: str, key: str) -> None:
-        val = cfg.get(section, {}).get(key)
+        sect = cfg.get(section)
+        if not isinstance(sect, dict):
+            return
+        val = sect.get(key)
         if isinstance(val, str) and val:
-            cfg[section][key] = _expand(val)
+            sect[key] = _expand(val)
 
     # Apply path expansion before validation so the model sees normalized paths
     for section, key in (
@@ -144,6 +147,12 @@ def load_config(path: Optional[str] = None) -> Dict[str, Any]:
     try:
         model = AppConfig.model_validate(cfg)
     except ValidationError as e:
-        # Re-raise with a concise message suitable for CLI
-        raise ValueError(f"Invalid configuration: {e}")
+        # Preserve detailed field validation errors for clearer CLI output
+        details = []
+        for err in e.errors():
+            loc = ".".join(str(p) for p in err.get("loc", []))
+            msg = err.get("msg", "validation error")
+            typ = err.get("type", "")
+            details.append(f"- {loc}: {msg}{f' ({typ})' if typ else ''}")
+        raise ValueError("Invalid configuration:\n" + "\n".join(details))
     return model.model_dump()

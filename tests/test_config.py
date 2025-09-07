@@ -31,8 +31,10 @@ def test_invalid_time_raises(tmp_path):
         "  time: '25:00'\n"
     )
     cfg_file = write_cfg(tmp_path, bad)
-    with pytest.raises(ValueError):
-       load_config(str(cfg_file))
+    with pytest.raises(ValueError) as excinfo:
+        load_config(str(cfg_file))
+    # Should include detailed field path in the error message
+    assert "schedule.time" in str(excinfo.value)
 
 
 def test_invalid_time_format_missing_colon(tmp_path):
