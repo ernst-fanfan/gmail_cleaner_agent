@@ -14,14 +14,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Control optional requirements installation (can be disabled in CI)
+ARG INSTALL_REQ=1
+
 # Optionally install from requirements.txt if present (no build failure if missing)
 # Requires BuildKit (enabled by default on modern Docker)
 RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt,required=false \
     python -m pip install --upgrade pip \
-    && if [ -f /tmp/requirements.txt ]; then \
+    && if [ "$INSTALL_REQ" = "1" ] && [ -f /tmp/requirements.txt ]; then \
          pip install --no-cache-dir -r /tmp/requirements.txt; \
        else \
-         echo "No requirements.txt found; skipping extra installs"; \
+         echo "Skipping requirements.txt installation"; \
        fi
 
 # Copy project files and install the local package
