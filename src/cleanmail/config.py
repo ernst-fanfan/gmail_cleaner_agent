@@ -28,9 +28,16 @@ class Schedule(BaseModel):
     @field_validator("time")
     @classmethod
     def validate_time(cls, v: str) -> str:
+        # Validate format strictly without broad exception catches
+        if not isinstance(v, str):
+            raise ValueError("time must be HH:MM")
+        parts = v.split(":")
+        if len(parts) != 2:
+            raise ValueError("time must be HH:MM")
         try:
-            hh, mm = map(int, v.split(":"))
-        except Exception as e:  # pragma: no cover
+            hh = int(parts[0])
+            mm = int(parts[1])
+        except ValueError as e:
             raise ValueError("time must be HH:MM") from e
         if not (0 <= hh < 24 and 0 <= mm < 60):
             raise ValueError("time must have 0<=HH<24 and 0<=MM<60")
@@ -118,15 +125,20 @@ def load_config(path: Optional[str] = None) -> Dict[str, Any]:
     def _expand(p: str) -> str:
         return str((base / p).resolve()) if not os.path.isabs(p) else p
 
+    # Helper to DRY path expansion
+    def _expand_field(section: str, key: str) -> None:
+        val = cfg.get(section, {}).get(key)
+        if isinstance(val, str) and val:
+            cfg[section][key] = _expand(val)
+
     # Apply path expansion before validation so the model sees normalized paths
-    if cfg.get("report", {}).get("save_dir"):
-        cfg["report"]["save_dir"] = _expand(cfg["report"].get("save_dir"))
-    if cfg.get("secrets", {}).get("google_credentials_dir"):
-        cfg["secrets"]["google_credentials_dir"] = _expand(cfg["secrets"].get("google_credentials_dir"))
-    if cfg.get("secrets", {}).get("sqlite_path"):
-        cfg["secrets"]["sqlite_path"] = _expand(cfg["secrets"].get("sqlite_path"))
-    if cfg.get("llm", {}).get("system_prompt_path"):
-        cfg["llm"]["system_prompt_path"] = _expand(cfg["llm"].get("system_prompt_path"))
+    for section, key in (
+        ("report", "save_dir"),
+        ("secrets", "google_credentials_dir"),
+        ("secrets", "sqlite_path"),
+        ("llm", "system_prompt_path"),
+    ):
+        _expand_field(section, key)
 
     # Validate using Pydantic, then return as plain dict
     try:

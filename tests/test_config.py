@@ -35,6 +35,26 @@ def test_invalid_time_raises(tmp_path):
        load_config(str(cfg_file))
 
 
+def test_invalid_time_format_missing_colon(tmp_path):
+    bad = (
+        "schedule:\n"
+        "  time: '2200'\n"
+    )
+    cfg_file = write_cfg(tmp_path, bad)
+    with pytest.raises(ValueError):
+        load_config(str(cfg_file))
+
+
+def test_invalid_time_non_numeric(tmp_path):
+    bad = (
+        "schedule:\n"
+        "  time: 'aa:bb'\n"
+    )
+    cfg_file = write_cfg(tmp_path, bad)
+    with pytest.raises(ValueError):
+        load_config(str(cfg_file))
+
+
 def test_path_expansion(tmp_path):
     cfg_text = (
         "report:\n"
@@ -53,4 +73,3 @@ def test_path_expansion(tmp_path):
     assert Path(cfg["secrets"]["google_credentials_dir"]).is_absolute()
     assert Path(cfg["secrets"]["sqlite_path"]).is_absolute()
     assert Path(cfg["llm"]["system_prompt_path"]).is_absolute()
-
