@@ -29,12 +29,6 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --no-cache-dir .
 COPY config.example.yaml ./
-# Create non-root user
-RUN useradd -m -u 10001 appuser \
-    && mkdir -p /app/data /app/reports \
-    && chown -R appuser:appuser /app
-USER appuser
-CMD ["python", "-m", "cleanmail.main", "serve"]
 
 # Default app stage with requirements
 FROM deps AS app
