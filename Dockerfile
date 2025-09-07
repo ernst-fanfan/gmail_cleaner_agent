@@ -13,13 +13,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install dependencies
-COPY pyproject.toml README.md ./
+# Install Python dependencies from requirements first (better layer caching)
+COPY requirements.txt ./
 RUN pip install --upgrade pip \
-    && pip install .[dev] --no-cache-dir
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy source
+# Copy project files and install the local package
+COPY pyproject.toml README.md ./
 COPY src ./src
+RUN pip install --no-cache-dir .
+
+# Copy config/example config
 COPY config.example.yaml ./
 
 # Create non-root user
