@@ -63,3 +63,29 @@ Reports:
 Notes:
 - Do not commit `config.yaml` or anything under `data/` or `reports/`.
 - For first-time Gmail auth inside the container, you’ll be prompted to authorize; we’ll wire a headless flow next.
+
+Docker (direct)
+- Build image: `docker build -t cleanmail:local .`
+- One-off dry run:
+  - `docker run --rm \
+      -e TZ=${TZ:-America/New_York} \
+      -e OPENAI_API_KEY=${OPENAI_API_KEY:-} \
+      -v "$PWD/config.yaml:/app/config.yaml:ro" \
+      -v "$PWD/data:/app/data" \
+      -v "$PWD/reports:/app/reports" \
+      cleanmail:local \
+      python -m cleanmail.main run --dry-run`
+- Scheduler/service:
+  - same as above but replace the command with `python -m cleanmail.main serve`
+
+Dependency note
+- The Docker image installs dependencies from `pyproject.toml` via `pip install .` — no requirements.txt is needed.
+
+Makefile shortcuts
+- `make build` — build local image (`cleanmail:local`)
+- `make run-dry` — one-off dry run with volumes mounted
+- `make run-serve` — run the scheduler service
+- `make compose-build` — build via Docker Compose
+- `make compose-up` — start the compose service
+- `make compose-dev` — start dev container; `make dev-sh` to open a shell
+- `make test` — run tests using the compose tests service

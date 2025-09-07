@@ -37,7 +37,7 @@
 - Configurable dry‑run mode that only reports proposed actions.
 
 ## Tech Choices
-- Language: Python 3.11+
+- Language: Python 3.13+
 - Gmail API: OAuth2 with offline access (`gmail.modify` scope).
 - LLM: OpenAI GPT (configurable model, e.g., `gpt-4o-mini`), temperature low.
 - Scheduler: APScheduler inside the app, or container `cron`—start with APScheduler for portability.
