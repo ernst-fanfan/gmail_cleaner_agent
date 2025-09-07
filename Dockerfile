@@ -17,10 +17,17 @@ WORKDIR /app
 # Upgrade pip
 RUN python -m pip install --upgrade pip
 
+# Optionally install extras (e.g., dev) in the image
+ARG INSTALL_EXTRAS=""
+
 # Install app and its dependencies from pyproject.toml
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --no-cache-dir .
+RUN if [ -n "$INSTALL_EXTRAS" ]; then \
+      pip install --no-cache-dir ".[${INSTALL_EXTRAS}]" ; \
+    else \
+      pip install --no-cache-dir . ; \
+    fi
 
 # Copy example config
 COPY config.example.yaml ./
