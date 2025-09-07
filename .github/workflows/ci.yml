@@ -63,5 +63,4 @@ jobs:
           tags: local/cleanmail:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            INSTALL_REQ=0
+          target: app-no-reqs
