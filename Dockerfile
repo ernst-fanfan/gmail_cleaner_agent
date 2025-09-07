@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 FROM python:3.13-slim AS base
 
 # System dependencies
@@ -13,10 +14,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install Python dependencies from requirements first (better layer caching)
-COPY requirements.txt ./
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+# Optionally install from requirements.txt if present (no build failure if missing)
+# Requires BuildKit (enabled by default on modern Docker)
+RUN --mount=type=bind,source=requirements.txt,target=/tmp/requirements.txt,required=false \
+    python -m pip install --upgrade pip \
+    && if [ -f /tmp/requirements.txt ]; then \
+         pip install --no-cache-dir -r /tmp/requirements.txt; \
+       else \
+         echo "No requirements.txt found; skipping extra installs"; \
+       fi
 
 # Copy project files and install the local package
 COPY pyproject.toml README.md ./
