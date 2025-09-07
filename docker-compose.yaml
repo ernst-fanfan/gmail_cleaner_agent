@@ -47,6 +47,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        INSTALL_EXTRAS: dev
     container_name: cleanmail-tests
     environment:
       - TZ=${TZ:-America/New_York}
