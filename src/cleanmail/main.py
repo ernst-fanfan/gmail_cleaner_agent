@@ -10,14 +10,23 @@ from .logging_setup import setup_logging
 from .engine import process_inbox
 from .reporter import build_markdown_report, save_report
 from .scheduler import start_scheduler, run_once
+from .gmail_client import RealGmailGateway
 
 
 log = logging.getLogger(__name__)
 
 
-def _runner_factory(cfg: Dict[str, Any]) -> Callable[[datetime], None]:
+def _runner_factory(cfg: Dict[str, Any], *, use_gmail: bool = False) -> Callable[[datetime], None]:
     def _runner(now: datetime) -> None:
-        report = process_inbox(now, cfg)
+        gateway = None
+        if use_gmail:
+            gateway = RealGmailGateway()
+            creds_dir = cfg.get("secrets", {}).get("google_credentials_dir")
+            try:
+                gateway.authenticate(creds_dir)
+            except Exception as e:
+                log.error("Gmail authentication failed: %s", e)
+        report = process_inbox(now, cfg, gateway=gateway)
         md = build_markdown_report(report, cfg)
         # Save report
         save_dir = cfg.get("report", {}).get("save_dir")
@@ -39,6 +48,7 @@ def main() -> None:
     parser.add_argument("--config", dest="config", default=None, help="Path to config.yaml")
     parser.add_argument("-v", dest="verbosity", action="count", default=0, help="Increase verbosity")
     parser.add_argument("--dry-run", dest="dry_run", action="store_true", help="Force dry run")
+    parser.add_argument("--use-gmail", dest="use_gmail", action="store_true", help="Use real Gmail gateway (experimental)")
 
     args = parser.parse_args()
     setup_logging(args.verbosity)
@@ -50,7 +60,7 @@ def main() -> None:
         print("ok")
         return
 
-    runner = _runner_factory(cfg)
+    runner = _runner_factory(cfg, use_gmail=bool(args.use_gmail))
 
     if args.command == "run":
         tz = cfg.get("schedule", {}).get("timezone", "UTC")

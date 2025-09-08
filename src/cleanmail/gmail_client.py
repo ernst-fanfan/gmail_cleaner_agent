@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Iterable, List, Optional
 
 from .models import MessageSummary
+from .gateway import GmailGateway
 
 
 def authenticate(credentials_dir: str) -> None:
@@ -81,3 +82,36 @@ def send_email(to: str, subject: str, markdown_body: str) -> None:
     """
     # TODO: Implement
     return None
+
+
+class RealGmailGateway(GmailGateway):
+    """Concrete Gmail gateway that delegates to module-level functions.
+
+    This keeps the engine decoupled while allowing progressive implementation
+    of the underlying Gmail operations.
+    """
+
+    def authenticate(self, credentials_dir: str) -> None:
+        return authenticate(credentials_dir)
+
+    def list_messages(
+        self, after: Optional[str] = None, max_results: int = 500, query: Optional[str] = None
+    ) -> Iterable[str]:
+        return list_messages(after=after, max_results=max_results, query=query)
+
+    def get_message(self, message_id: str, include_body: bool = True) -> MessageSummary:
+        return get_message(message_id=message_id, include_body=include_body)
+
+    def modify_labels(
+        self, message_id: str, add: Optional[List[str]] = None, remove: Optional[List[str]] = None
+    ) -> None:
+        return modify_labels(message_id=message_id, add=add, remove=remove)
+
+    def archive_message(self, message_id: str) -> None:
+        return archive_message(message_id)
+
+    def trash_message(self, message_id: str) -> None:
+        return trash_message(message_id)
+
+    def send_email(self, to: str, subject: str, markdown_body: str) -> None:
+        return send_email(to=to, subject=subject, markdown_body=markdown_body)
